@@ -5,7 +5,7 @@ const Schema = mongoose.Schema
 mongoose.plugin(slug)
 
 const Auth = new Schema({
-    name: {type: String,},
+    username: {type: String,},
     password: {type: String,},
     refreshToken: {type: String,},
     // slug: {type: String, slug: 'name', slug_padding_size: 4,  unique: true},
