@@ -11,10 +11,14 @@ class SiteController {
         res.render('auth/register')
     }
     
-    // // POST /user/register/stored
-    // register(req, res, next) {
-    //     res.render('auth/main')
-    // }
+    // POST /user/register/stored
+    stored(req, res, next) {
+        const user = new Auth(req.body)
+        
+        user.save()
+            .then()
+            .catch(next)
+    }
 }
 
 module.exports = new SiteController()
