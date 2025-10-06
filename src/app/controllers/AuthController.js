@@ -11,8 +11,8 @@ class SiteController {
         res.render('auth/main')
     }
 
-    // Post /user/login/redirect-main
-    async redirectMain(req, res, next) {
+    // Post /user/login/redirect-home
+    async redirectHome(req, res, next) {
         const username = req.body.username
         const password = req.body.password
         
@@ -35,6 +35,9 @@ class SiteController {
         }
     }
 
+    // POST /user/refresh-token
+    refreshToken(req, res, next) {}
+
     // GET /user/register
     register(req, res, next) {
         res.render('auth/register')
@@ -56,6 +59,7 @@ class SiteController {
     }
 
     // POST /user/logout
+    logout(req, res, next) {}
 }
 
 module.exports = new SiteController()
