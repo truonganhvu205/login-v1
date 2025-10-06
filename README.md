@@ -2,6 +2,12 @@
 
 A simple login/register/logout authentication using JWT.
 
+* To create a quality secret key, use:
+
+```
+require('crypto').randomBytes(64).toString('hex')
+```
+
 #### npm Packages
 
 ```
