@@ -6,8 +6,13 @@
         </div>
         <div>
             <label for="password">Password</label>
-            <input type="password" name="password" id="" required>
+            <input type="password" name="password" id="password-input" required>
         </div>
+        <div>
+            <label for="password2">Confirm Password</label>
+            <input type="password" name="password2" id="password2-input" required>
+        </div>
+        <div id="err-text"></div>
         <button type="submit">Register</button>
     </form>
 
@@ -16,3 +21,20 @@
         <a href="/user/login">Login</a>
     </div>
 </div>
+
+<script>
+    const passwordInput = document.querySelector('#password-input')
+    const password2Input = document.querySelector('#password2-input')
+    const errText = document.querySelector('#err-text')
+
+    function validatePassword() {
+            if(passwordInput.value !== password2Input.value) {
+            errText.innerHTML = '<p>Your password is not match!</p>'
+        } else {
+            errText.innerHTML = ''
+        }
+    }
+
+    passwordInput.addEventListener('input', validatePassword)
+    password2Input.addEventListener('input', validatePassword)
+</script>

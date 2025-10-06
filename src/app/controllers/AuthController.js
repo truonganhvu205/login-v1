@@ -1,4 +1,9 @@
 const Auth = require('../models/Auth')
+require('dotenv').config()
+const jwt = require('jsonwebtoken')
+const bcrypt = require('bcrypt')
+
+const saltRounds = 10
 
 class SiteController {
     // GET /user/login
@@ -7,7 +12,28 @@ class SiteController {
     }
 
     // Post /user/login/redirect-main
-    redirectMain(req, res, next) {}
+    async redirectMain(req, res, next) {
+        const username = req.body.username
+        const password = req.body.password
+        
+        const user = await Auth.findOne({username: username}).lean()
+        const passwordMatch = await bcrypt.compare(password, user.password)
+
+        if(!user || !passwordMatch) {
+            res.render('auth/main', {err: 'Your username or password is wrong!'})
+            return
+        }
+        
+        try{
+            const accessToken = jwt.sign({username: user.username}, process.env.ACCESS_TOKEN_SECRET, {expiresIn: '30s'})
+            const refreshToken = jwt.sign({username: user.username}, process.env.REFRESH_TOKEN_SECRET)
+            
+            await Auth.updateOne({username: user.username}, {$set: {refreshToken}})
+            res.redirect('/')
+        } catch(err) {
+            next(err)
+        }
+    }
 
     // GET /user/register
     register(req, res, next) {
@@ -15,8 +41,14 @@ class SiteController {
     }
     
     // POST /user/register/stored
-    stored(req, res, next) {
-        const user = new Auth(req.body)
+    async stored(req, res, next) {
+        const password = req.body.password
+        const hash = await bcrypt.hashSync(password, saltRounds)
+
+        const user = new Auth({
+            username: req.body.username, 
+            password: hash,
+        })
         
         user.save()
             .then(() => res.redirect('/user/login'))

@@ -1,5 +1,7 @@
 #### Description
 
+A simple login/register/logout authentication using JWT.
+
 #### npm Packages
 
 ```

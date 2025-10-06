@@ -1,5 +1,5 @@
 <div class="my-4 w-50 m-auto" style="min-height: 80vh;">
-    <form action="/" method="post">
+    <form action="/user/login/redirect-main" method="post">
         <div>
             <label for="username">Username</label>
             <input type="text" name="username" id="" required>
@@ -8,6 +8,11 @@
             <label for="password">Password</label>
             <input type="password" name="password" id="" required>
         </div>
+
+        {{#if err}}
+        <div>{{err}}</div>
+        {{/if}}
+
         <button type="submit">Login</button>
     </form>
 
