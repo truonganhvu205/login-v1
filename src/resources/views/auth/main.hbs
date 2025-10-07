@@ -1,23 +1,25 @@
-<div class="my-4 w-50 m-auto" style="min-height: 80vh;">
+<div class="my-4 w-25 m-auto" style="min-height: 80vh;">
+    <h2 class="mb-4 text-center">Login</h2>
+
     <form action="/user/login/redirect-main" method="post">
         <div>
             <label for="username">Username</label><br>
-            <input type="text" name="username" id="" required>
+            <input type="text" name="username" id="" class="w-100" required>
         </div>
         <div class="my-4">
             <label for="password">Password</label><br>
-            <input type="password" name="password" id="" required>
+            <input type="password" name="password" id="" class="w-100" required>
         </div>
 
         {{#if err}}
         <div class="mb-4">{{err}}</div>
         {{/if}}
 
-        <button type="submit" class="mb-4">Login</button>
+        <button type="submit" class="mb-2 btn btn-primary d-block mx-auto">Submit</button>
     </form>
 
-    <div>
-        <span>Or</span>
-        <a href="/user/register">Register</a>
+    <div class="d-flex flex-column justify-content-center align-items-center">
+        <span class="mb-2">Or</span>
+        <a href="/user/register" class="text-decoration-none">Register</a>
     </div>
 </div>

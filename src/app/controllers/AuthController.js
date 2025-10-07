@@ -29,47 +29,15 @@ class SiteController {
         }
         
         try{
-            const accessToken = jwt.sign({username: user.username}, process.env.ACCESS_TOKEN_SECRET, {expiresIn: '60s'})
+            const accessToken = jwt.sign({username: user.username}, process.env.ACCESS_TOKEN_SECRET, {expiresIn: '5m'})
             const refreshToken = jwt.sign({username: user.username}, process.env.REFRESH_TOKEN_SECRET)
             
             await Auth.updateOne({username: user.username}, {$set: {refreshToken}})
 
             res.cookie('username', username, {httpOnly: true})
-            res.cookie('accessToken', accessToken, {httpOnly: true, maxAge: 60000 })
+            res.cookie('accessToken', accessToken, {httpOnly: true, maxAge: 5 * 60 * 1000 })
             res.cookie('refreshToken', refreshToken, {httpOnly: true})
             res.redirect('/')
-        } catch(err) {
-            next(err)
-        }
-    }
-
-    // POST /user/refresh-token
-    async refreshToken(req, res, next) {
-        try {
-            const refreshToken = req.cookies.refreshToken
-
-            if(!refreshToken) {
-                res.sendStatus(401)
-                return
-            }
-
-            const refreshTokenDb = await Auth.findOne({refreshToken: refreshToken}).lean()
-
-            if(!refreshTokenDb) {
-                res.sendStatus(403)
-                return
-            }
-
-            jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, data) => {
-                if(err) {
-                    res.sendStatus(403)
-                    return
-                } else {
-                    const accessToken = jwt.sign({username: data.username}, process.env.ACCESS_TOKEN_SECRET, {expiresIn: '60s'})
-
-                    res.json({accessToken})
-                }
-            })
         } catch(err) {
             next(err)
         }
