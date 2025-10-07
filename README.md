@@ -1,6 +1,6 @@
 #### Description
 
-A simple login/register/logout authentication using JWT.
+A simple API login/register/logout authentication using JWT.
 
 * To create a quality secret key, use:
 
@@ -21,6 +21,7 @@ npm install method-override
 npm install dotenv --save
 npm install jsonwebtoken
 npm install bcrypt
+npm i cookie-parser
 
 npm i nodemon --save-dev
 npm i morgan --save-dev

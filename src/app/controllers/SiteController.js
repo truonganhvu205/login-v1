@@ -8,7 +8,8 @@ class SiteController {
 
     // GET /homepage-2
     homepage2(req, res, next) {
-        res.render('home2')
+        const username = req.cookies.username
+        res.render('home2', {username})
     }
 }
 

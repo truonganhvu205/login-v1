@@ -8,6 +8,8 @@ const path = require('path')
 const routes = require('./routes')
 const db = require('./config/db')
 const methodOverride = require('method-override')
+const cookieParser = require('cookie-parser')
+const headerMiddleware = require('./middlewares/HeaderMiddleware')
 
 db.connect()
 
@@ -19,9 +21,12 @@ app.use(morgan('combined'))
 app.use(express.urlencoded({extended: true}))
 app.use(express.json())
 app.use(methodOverride('_method'))
+app.use(cookieParser())
+app.use(headerMiddleware)
 
 app.engine('.hbs', engine({
     extname: '.hbs',
+    partialsDir: path.join(__dirname, 'resources', 'views', 'partials'),
 }))
 app.set('view engine', '.hbs')
 app.set('views', path.join(__dirname, 'resources', 'views'))

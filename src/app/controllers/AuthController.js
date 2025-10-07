@@ -13,22 +13,30 @@ class SiteController {
 
     // Post /user/login/redirect-home
     async redirectHome(req, res, next) {
-        const username = req.body.username
-        const password = req.body.password
-        
+        const {username, password} = req.body
         const user = await Auth.findOne({username: username}).lean()
-        const passwordMatch = await bcrypt.compare(password, user.password)
+        
+        if(!user) {
+            res.render('auth/main', {err: 'Your username or password is wrong! or not exist yet.'})
+            return
+        }
+        
+        const passwordMatch = bcrypt.compare(password, user.password)
 
-        if(!user || !passwordMatch) {
-            res.render('auth/main', {err: 'Your username or password is wrong!'})
+        if(!passwordMatch) {
+            res.render('auth/main', {err: 'Your username or password is wrong! or not exist yet.'})
             return
         }
         
         try{
-            const accessToken = jwt.sign({username: user.username}, process.env.ACCESS_TOKEN_SECRET, {expiresIn: '30s'})
+            const accessToken = jwt.sign({username: user.username}, process.env.ACCESS_TOKEN_SECRET, {expiresIn: '60s'})
             const refreshToken = jwt.sign({username: user.username}, process.env.REFRESH_TOKEN_SECRET)
             
             await Auth.updateOne({username: user.username}, {$set: {refreshToken}})
+
+            res.cookie('username', username, {httpOnly: true})
+            res.cookie('accessToken', accessToken, {httpOnly: true, maxAge: 60000 })
+            res.cookie('refreshToken', refreshToken, {httpOnly: true})
             res.redirect('/')
         } catch(err) {
             next(err)
@@ -36,7 +44,36 @@ class SiteController {
     }
 
     // POST /user/refresh-token
-    refreshToken(req, res, next) {}
+    async refreshToken(req, res, next) {
+        try {
+            const refreshToken = req.cookies.refreshToken
+
+            if(!refreshToken) {
+                res.sendStatus(401)
+                return
+            }
+
+            const refreshTokenDb = await Auth.findOne({refreshToken: refreshToken}).lean()
+
+            if(!refreshTokenDb) {
+                res.sendStatus(403)
+                return
+            }
+
+            jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, data) => {
+                if(err) {
+                    res.sendStatus(403)
+                    return
+                } else {
+                    const accessToken = jwt.sign({username: data.username}, process.env.ACCESS_TOKEN_SECRET, {expiresIn: '60s'})
+
+                    res.json({accessToken})
+                }
+            })
+        } catch(err) {
+            next(err)
+        }
+    }
 
     // GET /user/register
     register(req, res, next) {
@@ -45,21 +82,36 @@ class SiteController {
     
     // POST /user/register/stored
     async stored(req, res, next) {
-        const password = req.body.password
-        const hash = await bcrypt.hashSync(password, saltRounds)
+        try {
+            const password = req.body.password
+            const hash = bcrypt.hashSync(password, saltRounds)
 
-        const user = new Auth({
-            username: req.body.username, 
-            password: hash,
-        })
-        
-        user.save()
-            .then(() => res.redirect('/user/login'))
-            .catch(next)
+            const user = new Auth({
+                username: req.body.username, 
+                password: hash,
+            })
+            await user.save()
+            
+            res.redirect('/user/login')
+        } catch(err) {
+            next(err)
+        }
     }
 
     // POST /user/logout
-    logout(req, res, next) {}
+    async logout(req, res, next) {
+        try {
+            const refreshToken = req.cookies.refreshToken
+            await Auth.updateOne({refreshToken: refreshToken}, {$set: {refreshToken: null}})
+
+            res.clearCookie('username')
+            res.clearCookie('accessToken')
+            res.clearCookie('refreshToken')
+            res.redirect('/')
+        } catch (err) {
+            next(err)
+        }
+    }
 }
 
 module.exports = new SiteController()
