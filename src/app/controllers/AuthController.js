@@ -45,22 +45,28 @@ class SiteController {
 
     // GET /user/register
     register(req, res, next) {
-        res.render('auth/register')
+        res.render('auth/register', {showHeader: false})
     }
     
     // POST /user/register/stored
     async stored(req, res, next) {
         try {
-            const password = req.body.password
+            const {username, password} = req.body
             const hash = bcrypt.hashSync(password, saltRounds)
 
-            const user = new Auth({
-                username: req.body.username, 
-                password: hash,
-            })
-            await user.save()
-            
-            res.redirect('/user/login')
+            const userExist = await Auth.findOne({username}).lean()
+
+            if(userExist) {
+                res.render('auth/register', {err: 'This username exists! Please choose another one.'})
+            } else {
+                const user = new Auth({
+                    username: username, 
+                    password: hash,
+                })
+                await user.save()
+                
+                res.redirect('/user/login')
+            }
         } catch(err) {
             next(err)
         }

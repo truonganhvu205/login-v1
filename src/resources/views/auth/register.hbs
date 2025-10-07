@@ -14,7 +14,13 @@
             <label for="password2">Confirm Password</label><br>
             <input type="password" name="password2" id="password2-input" class="w-100" required>
         </div>
+
+        {{#if err}}
+        <div class="mb-1">{{err}}</div>
+        {{/if}}
+
         <div id="err-text" class="mb-4"></div>
+        
         <button type="submit" class="mb-2 btn btn-primary d-block mx-auto">Register</button>
     </form>
 
