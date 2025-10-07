@@ -1,6 +1,6 @@
 #### Description
 
-A simple API login/register/logout authentication using JWT.
+A simple login/register/logout authentication using JWT.
 
 * To create a quality secret key, use:
 
